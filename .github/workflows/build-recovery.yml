@@ -1,0 +1,61 @@
+name: Build OrangeFox Recovery for Pixel 10 Pro
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        device: [blazer]
+    
+    steps:
+    - name: Checkout OrangeFox source
+      uses: actions/checkout@v4
+      with:
+        repository: OrangeFoxRecovery/react_native_manifest
+        ref: 14.1
+        path: fox_14.1
+    
+    - name: Initialize and sync repository
+      run: |
+        cd fox_14.1
+        repo init -u https://github.com/OrangeFoxRecovery/react_native_manifest -b 14.1
+        repo sync -c -j$(nproc)
+        
+    - name: Clone device tree
+      run: |
+        cd fox_14.1
+        git clone https://github.com/jsauce454/twrp_device_google_blazer.git device/google/blazer
+        
+    - name: Set up build environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y bc bison build-essential curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev lib32readline-dev lib32z1-dev liblz4-tool libncurses5-dev libsdl1.2-dev libssl-dev libwxgtk3.0-gtk3-dev libxml2 libxml2-utils lzop make openssl patch pngcrush pyton3 rsync schedtool squashfs-tools xsltproc yasm zip zlib1g-dev
+        mkdir -p ~/bin
+        curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+        chmod a+x ~/bin/repo
+        echo 'export PATH=~/bin:$PATH' >> ~/.bashrc
+        source ~/.bashrc
+        
+    - name: Build recovery
+      run: |
+        cd fox_14.1
+        source build/envsetup.sh
+        export ALLOW_MISSING_DEPENDENCIES=true
+        lunch twrp_${{ matrix.device }}-ap2a-eng
+        make recoveryimage -j$(nproc)
+        
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: orangefox-${{ matrix.device }}
+        path: |
+          fox_14.1/out/target/product/${{ matrix.device }}/vendor_boot.img
+          fox_14.1/out/target/product/${{ matrix.device }}/OrangeFox-*.zip
+        if-no-files-found: ignore

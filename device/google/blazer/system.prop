@@ -1,0 +1,31 @@
+ro.adb.secure=0
+ro.boot.dynamic_partitions=true
+vendor.gatekeeper.disable_spu=true
+ro.charger.enable_suspend=1
+ro.crypto.allow_encrypt_override=true
+vendor.gatekeeper.disable_spu=true
+
+ro.display.series=Pixel 10 Pro
+ro.board.platform=deepspace
+ro.adb.secure=0
+ro.crypto.volume.options=
+persist.sys.isUsbOtgEnabled=true
+
+# Android 16 specific - commented out for recovery build (conflicts with AOSP 14)
+# ro.build.version.release=16
+# ro.build.version.sdk=36
+# ro.build.version.security_patch=2024-05-05
+
+# Android 16 specific - commented out for recovery build (conflicts with AOSP 14)
+# ro.vendor.build.version.release=16
+# ro.vendor.build.version.sdk=36
+
+# SELinux
+ro.build.selinux=1
+ro.vendor.build.selinux=1
+
+# Android 16 specific flags
+ro.vendor.boot.verifiedbootstate=green
+ro.vendor.boot.verifiedbootstate=green
+ro.vendor.boot.warranty_bit=0
+ro.vendor.boot.verifiedbootstate=green
